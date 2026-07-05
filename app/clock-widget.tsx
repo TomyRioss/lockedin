@@ -80,6 +80,15 @@ export default function ClockWidget() {
   const breakSeconds = onBreak ? Number(activeBreak!.elapsed) + sinceFetch : 0;
   void tick;
 
+  useEffect(() => {
+    if (!clockedIn) {
+      document.title = "lockin";
+      return;
+    }
+    const label = onBreak ? "break" : "lockin";
+    document.title = `${fmt(onBreak ? breakSeconds : mainSeconds)} ${label}`;
+  });
+
   return (
     <div className="flex items-center gap-16 text-white">
       <div className="flex flex-col items-center gap-10">
