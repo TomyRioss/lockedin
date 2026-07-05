@@ -69,14 +69,12 @@ export default function ClockWidget() {
     setShowReasonModal(false);
   }
 
-  if (!status) return null;
-
-  const clockedIn = !!status.session;
-  const activeBreak = status.breaks.find((b) => b.status === "active") ?? null;
+  const clockedIn = !!status?.session;
+  const activeBreak = status?.breaks.find((b) => b.status === "active") ?? null;
   const onBreak = !!activeBreak;
   const sinceFetch = (Date.now() - fetchedAt.current) / 1000;
 
-  const mainSeconds = clockedIn ? Number(status.session!.elapsed) + sinceFetch : 0;
+  const mainSeconds = clockedIn ? Number(status!.session!.elapsed) + sinceFetch : 0;
   const breakSeconds = onBreak ? Number(activeBreak!.elapsed) + sinceFetch : 0;
   void tick;
 
@@ -88,6 +86,8 @@ export default function ClockWidget() {
     const label = onBreak ? "break" : "lockin";
     document.title = `${fmt(onBreak ? breakSeconds : mainSeconds)} ${label}`;
   });
+
+  if (!status) return null;
 
   return (
     <div className="flex items-center gap-16 text-white">
