@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Session {
+  id       Int      @id @default(autoincrement())
+  clockIn  DateTime @default(now()) @map("clock_in")
+  clockOut DateTime? @map("clock_out")
+  status   String   @default("active")
+  breaks   Break[]
+
+  @@map("sessions")
+}
+
+model Break {
+  id        Int       @id @default(autoincrement())
+  sessionId Int       @map("session_id")
+  session   Session   @relation(fields: [sessionId], references: [id])
+  breakIn   DateTime  @default(now()) @map("break_in")
+  breakOut  DateTime? @map("break_out")
+  status    String    @default("active")
+  reason    String?
+
+  @@map("breaks")
+}
