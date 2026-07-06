@@ -1,4 +1,5 @@
 import { sql } from "@/lib/db";
+import { getOrCreateUserId } from "@/lib/auth";
 import Nav from "../nav";
 
 export const dynamic = "force-dynamic";
@@ -12,14 +13,19 @@ function fmt(seconds: number) {
 }
 
 export default async function MetricsPage() {
+  const userId = await getOrCreateUserId();
   const sessions = await sql`
     select id, clock_in, clock_out
     from sessions
-    where status = 'closed'
+    where status = 'closed' and user_id = ${userId}
     order by clock_in desc
   `;
 
-  const breaks = await sql`select session_id, break_in, break_out from breaks where status = 'closed'`;
+  const breaks = await sql`
+    select b.session_id, b.break_in, b.break_out from breaks b
+    join sessions s on s.id = b.session_id
+    where b.status = 'closed' and s.user_id = ${userId}
+  `;
 
   const rows = sessions.map((s) => {
     const sessionBreaks = breaks.filter((b) => b.session_id === s.id);

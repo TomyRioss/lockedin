@@ -1,9 +1,11 @@
 import { sql } from "@/lib/db";
+import { getOrCreateUserId } from "@/lib/auth";
 
 export async function GET() {
+  const userId = await getOrCreateUserId();
   const [session] = await sql`
     select id, clock_in, extract(epoch from now() - clock_in) as elapsed
-    from sessions where status = 'active'
+    from sessions where status = 'active' and user_id = ${userId}
   `;
   if (!session) {
     return Response.json({ session: null, breaks: [] });

@@ -1,7 +1,9 @@
 import { sql } from "@/lib/db";
+import { getOrCreateUserId } from "@/lib/auth";
 
 export async function POST() {
-  const [session] = await sql`select id, clock_in from sessions where status = 'active'`;
+  const userId = await getOrCreateUserId();
+  const [session] = await sql`select id, clock_in from sessions where status = 'active' and user_id = ${userId}`;
   if (!session) {
     return Response.json({ error: "no active session" }, { status: 409 });
   }

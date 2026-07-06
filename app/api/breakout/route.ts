@@ -1,8 +1,14 @@
 import { sql } from "@/lib/db";
+import { getOrCreateUserId } from "@/lib/auth";
 
 export async function POST(req: Request) {
+  const userId = await getOrCreateUserId();
   const { reason } = await req.json().catch(() => ({ reason: null }));
-  const [brk] = await sql`select id from breaks where status = 'active'`;
+  const [brk] = await sql`
+    select b.id from breaks b
+    join sessions s on s.id = b.session_id
+    where b.status = 'active' and s.user_id = ${userId}
+  `;
   if (!brk) {
     return Response.json({ error: "no active break" }, { status: 409 });
   }
